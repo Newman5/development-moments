@@ -1,0 +1,342 @@
+schema_version: 1
+
+destinations:
+  dev-log:
+    title: "Building Recent Bookmarks v1.1"
+    type: blog-post
+
+  bookmarks-broken:
+    title: "Are Bookmarks Broken?"
+    type: blog-post
+
+  linux-for-developers:
+    title: "Linux Through Software Development"
+    type: series
+
+  ai-pair-programming:
+    title: "Learning Software Development with an AI Pair Programmer"
+    type: series-or-course
+
+  github-development:
+    title: "GitHub Through a Real Software Project"
+    type: series-or-course
+
+  release-engineering:
+    title: "Shipping Real Software"
+    type: tutorial-or-series
+
+moments:
+
+  - id: redefine-the-product
+    phase: product-direction
+    moment: "Recent Bookmarks stopped being merely a popup showing recent bookmarks and became a tool for making browser bookmarks useful again."
+    insight: "The emerging workflow was Find → Bookmark → Review → Use instead of Find → Bookmark → Forget."
+    destinations:
+      - bookmarks-broken
+      - dev-log
+    value: high
+
+  - id: native-folders-as-projects
+    phase: product-direction
+    moment: "We decided not to create a separate project or collection system inside the extension."
+    decision: "Use the browser's existing bookmark folders as the organizational structure."
+    insight: "A small tool can become more useful by strengthening an existing browser capability instead of replacing it."
+    destinations:
+      - bookmarks-broken
+      - dev-log
+    value: high
+
+  - id: local-first-boundary
+    phase: product-direction
+    moment: "We established a local-first boundary: no server, account, database, analytics, or external bookmark service."
+    insight: "The browser can remain the system of record while exports provide the bridge to other tools."
+    destinations:
+      - bookmarks-broken
+      - dev-log
+    value: high
+
+  - id: issue-before-code
+    phase: development-workflow
+    moment: "Feature work began by defining an issue with purpose, scope, and acceptance criteria before changing code."
+    example: "Issue #18 defined the export feature before implementation began."
+    insight: "An issue can establish the boundary of a piece of work rather than merely report a bug."
+    destinations:
+      - github-development
+      - ai-pair-programming
+    value: high
+
+  - id: branch-per-purpose
+    phase: development-workflow
+    moment: "Each bounded piece of work received its own branch, such as feat/export-filtered-bookmarks, style/polish-export-controls, and release/v1.1.0."
+    insight: "Branch names communicate both the type and purpose of a change."
+    destinations:
+      - github-development
+      - dev-log
+    value: high
+
+  - id: inspect-before-changing
+    phase: export
+    moment: "Before implementing export, we located where filtered bookmark data was produced and consumed."
+    problem: "Where does filteredBookmarks actually flow through popup.js?"
+    commands:
+      - 'grep -n -E "filteredBookmarks|folderPath|folderAncestry|applyFilters" popup.js'
+    insight: "Search and understand the existing data flow before introducing a new feature."
+    destinations:
+      - linux-for-developers
+      - ai-pair-programming
+    value: high
+
+  - id: inspect-small-code-regions
+    phase: ui-polish
+    moment: "Instead of repeatedly dumping whole files, we inspected the exact CSS region relevant to the filters."
+    commands:
+      - "sed -n '100,150p' popup.css"
+      - "sed -n '150,210p' popup.css"
+    insight: "Command-line tools can narrow attention to the part of a file relevant to the current question."
+    destinations:
+      - linux-for-developers
+      - ai-pair-programming
+    value: medium
+
+  - id: console-log-as-data-inspection
+    phase: export
+    moment: "We logged a real filtered bookmark before designing the export representation."
+    discovery: "The runtime object included browser-specific IDs plus useful title, URL, date, folderPath, and folderAncestry data."
+    insight: "Inspect real runtime data before inventing a schema."
+    destinations:
+      - ai-pair-programming
+      - dev-log
+    value: high
+
+  - id: derive-small-export-schema
+    phase: export
+    moment: "We reduced the browser bookmark object to a small portable representation."
+    result:
+      fields:
+        - title
+        - url
+        - dateAdded
+        - folders
+    insight: "An interchange schema should expose useful meaning without leaking browser-specific implementation details."
+    destinations:
+      - dev-log
+      - bookmarks-broken
+    value: high
+
+  - id: test-schema-against-weird-cases
+    phase: export
+    moment: "The export schema was tested with root bookmarks, normal folders, duplicate folder names, and deeply nested folder structures."
+    insight: "Small real-world edge cases can validate a data model before additional functionality is built on it."
+    destinations:
+      - ai-pair-programming
+      - dev-log
+    value: high
+
+  - id: json-first-working-export
+    phase: export
+    moment: "The first complete JSON file successfully exported only the currently filtered bookmark set."
+    insight: "Export transformed Recent Bookmarks from a viewer into a possible component of a larger workflow."
+    destinations:
+      - dev-log
+      - bookmarks-broken
+    value: high
+
+  - id: research-before-second-format
+    phase: export
+    moment: "Before choosing the second export format, we investigated existing bookmark tools, schemas, browser behavior, and prior solutions."
+    decision: "Use Netscape Bookmark HTML because it remains broadly interoperable with browsers."
+    insight: "A mature, boring interchange format can be more valuable than inventing a new one."
+    destinations:
+      - dev-log
+      - bookmarks-broken
+      - ai-pair-programming
+    value: high
+
+  - id: build-tree-before-html
+    phase: export
+    moment: "The flat filtered bookmark set was first transformed into a nested folder tree before generating Bookmark HTML."
+    insight: "Separate data transformation from serialization so each step can be inspected independently."
+    destinations:
+      - ai-pair-programming
+      - dev-log
+    value: high
+
+  - id: test-import-not-just-export
+    phase: export
+    moment: "We tested the generated Bookmark HTML by importing it into a separate Firefox profile and into Chrome."
+    discovery: "Firefox imported the hierarchy directly while Chrome placed it under an Imported folder."
+    insight: "An export feature is not really tested until another application successfully consumes the output."
+    destinations:
+      - ai-pair-programming
+      - release-engineering
+      - dev-log
+    value: high
+
+  - id: safe-test-environment
+    phase: testing
+    moment: "A separate Firefox profile was created before testing bookmark import to avoid risking the user's real bookmark collection."
+    insight: "Create disposable test environments when testing operations that can alter valuable user data."
+    destinations:
+      - ai-pair-programming
+      - release-engineering
+    value: high
+
+  - id: utility-ui-not-product-redesign
+    phase: ui-polish
+    moment: "The new folder and export controls received simple spacing and grouping rather than a larger UI redesign."
+    decision: "Keep the extension a utility that gets the job done."
+    insight: "Polish does not have to become redesign; scope boundaries matter."
+    destinations:
+      - dev-log
+      - ai-pair-programming
+    value: medium
+
+  - id: commit-messages-as-history
+    phase: development-workflow
+    moment: "We repeatedly stopped to distinguish useful commit messages such as feat:, fix:, refactor:, style:, chore:, and release preparation."
+    insight: "A commit message should explain the meaningful unit of change, not merely describe files edited."
+    destinations:
+      - github-development
+      - ai-pair-programming
+    value: high
+
+  - id: prs-as-durable-documentation
+    phase: development-workflow
+    moment: "PR descriptions recorded what changed, why architecture changed, acceptance criteria, testing, and issue relationships."
+    insight: "A PR is not just a merge mechanism; it becomes documentation for someone learning the repository later."
+    destinations:
+      - github-development
+      - ai-pair-programming
+    value: high
+
+  - id: release-branch
+    phase: release
+    moment: "After feature PRs were merged, a dedicated release/v1.1.0 branch was created for versioning, documentation, validation, and packaging."
+    insight: "Feature development and release preparation are different kinds of work and can be separated."
+    destinations:
+      - github-development
+      - release-engineering
+      - dev-log
+    value: high
+
+  - id: find-manifest-version
+    phase: release
+    moment: "We discovered package.json and manifest.json had different previous version numbers and investigated which one was store-facing."
+    commands:
+      - "find . -maxdepth 2 -iname '*manifest*' -type f -print"
+      - 'grep -n \'"version"\\|"manifest_version"\\|"background"\\|"browser_specific_settings"\' manifest.json'
+      - 'git log -p -- manifest.json'
+    insight: "Use repository history and source inspection rather than guessing how versioning works."
+    destinations:
+      - linux-for-developers
+      - github-development
+      - release-engineering
+    value: high
+
+  - id: git-history-as-investigation
+    phase: release
+    moment: "Git log and diff were used to reconstruct everything that had changed since the previous store version."
+    commands:
+      - "git log --oneline --decorate -15"
+      - "git log --oneline 8669b23..HEAD"
+      - "git diff --stat 8669b23..HEAD"
+    insight: "Git is not merely a save mechanism; repository history is an investigative tool."
+    destinations:
+      - linux-for-developers
+      - github-development
+    value: high
+
+  - id: inspect-the-artifact
+    phase: release
+    moment: "After a successful Firefox build, we inspected the ZIP instead of assuming it was ready to ship."
+    commands:
+      - "unzip -l dist/firefox/recent_bookmarks-1.1.0.zip"
+    discovery: "The release unexpectedly contained the entire dev-notes directory."
+    insight: "A successful build does not mean the artifact is suitable for release. Inspect what users will actually receive."
+    destinations:
+      - linux-for-developers
+      - release-engineering
+      - dev-log
+    value: high
+
+  - id: fix-package-boundary
+    phase: release
+    moment: "The web-ext build exclusions were corrected and the package rebuilt until only intended runtime and public documentation files remained."
+    insight: "Release engineering includes defining the boundary between repository contents and distributable product."
+    destinations:
+      - release-engineering
+      - dev-log
+    value: high
+
+  - id: cross-browser-manifest-warning
+    phase: release
+    moment: "Firefox and Chrome interpreted the Manifest V3 background declaration differently."
+    discovery: "Firefox ignored service_worker while Chrome warned that background.scripts belongs to Manifest V2."
+    decision: "Keep the dual declaration after testing because it provided working cross-browser compatibility."
+    insight: "Warnings require investigation and testing; they are not automatically either errors or safe to ignore."
+    destinations:
+      - release-engineering
+      - ai-pair-programming
+      - dev-log
+    value: high
+
+  - id: verify-package-equivalence
+    phase: release
+    moment: "The Firefox and Chrome packaged manifests were compared cryptographically."
+    commands:
+      - "unzip -p dist/firefox/recent_bookmarks-1.1.0.zip manifest.json | sha256sum"
+      - "unzip -p dist/chrome/recent_bookmarks-1.1.0.zip manifest.json | sha256sum"
+    discovery: "Both hashes were identical."
+    insight: "Checksums provide a simple way to prove that two packaged files contain identical content."
+    destinations:
+      - linux-for-developers
+      - release-engineering
+    value: high
+
+  - id: privacy-claim-source-audit
+    phase: release
+    moment: "Before publishing strong privacy claims, we searched the runtime source for network-access mechanisms and URLs."
+    commands:
+      - "grep -RniE 'fetch\\(|XMLHttpRequest|https?://' --exclude-dir=node_modules --exclude-dir=dist --include='*.js' --include='*.html' ."
+    discovery: "The search returned no runtime network requests."
+    insight: "Privacy documentation should be verified against source code rather than written solely from intention."
+    destinations:
+      - linux-for-developers
+      - release-engineering
+      - dev-log
+    value: high
+
+  - id: diff-check-before-release
+    phase: release
+    moment: "git diff --check caught two trailing spaces in privacy.md during the final release review."
+    commands:
+      - "git diff --check"
+    insight: "Tiny automated checks are cheap enough to run routinely and can catch details humans overlook."
+    destinations:
+      - linux-for-developers
+      - github-development
+      - release-engineering
+    value: medium
+
+  - id: tag-exact-release
+    phase: release
+    moment: "After the release PR was merged, v1.1.0 was attached to the exact merge commit using an annotated Git tag."
+    commands:
+      - 'git tag -a v1.1.0 -m "Recent Bookmarks v1.1.0"'
+      - "git show v1.1.0 --stat"
+      - "git push origin v1.1.0"
+    insight: "A release tag permanently identifies the exact source corresponding to a published version."
+    destinations:
+      - github-development
+      - release-engineering
+      - dev-log
+    value: high
+
+  - id: test-the-store-version
+    phase: release
+    moment: "After Mozilla and Chrome approved v1.1.0, the extension was installed from both public stores and tested again."
+    insight: "Release testing is not finished when a package is uploaded; verify the artifact users can actually install."
+    destinations:
+      - release-engineering
+      - dev-log
+    value: high
