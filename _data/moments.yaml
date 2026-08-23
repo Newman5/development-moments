@@ -1,5 +1,9 @@
 schema_version: 1
 
+source:
+  project: recent-bookmarks
+  cycle: v1.1
+
 destinations:
   dev-log:
     title: "Building Recent Bookmarks v1.1"
@@ -224,7 +228,7 @@ moments:
     moment: "We discovered package.json and manifest.json had different previous version numbers and investigated which one was store-facing."
     commands:
       - "find . -maxdepth 2 -iname '*manifest*' -type f -print"
-      - 'grep -n \'"version"\\|"manifest_version"\\|"background"\\|"browser_specific_settings"\' manifest.json'
+      - 'grep -n "version"|"manifest_version"|"background"|"browser_specific_settings" manifest.json'
       - 'git log -p -- manifest.json'
     insight: "Use repository history and source inspection rather than guessing how versioning works."
     destinations:

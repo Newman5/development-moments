@@ -38,7 +38,7 @@ post, series, tutorial, or course.
 
 ## Structure
 
-`data/moments.yaml` is the source dataset.
+`_data/moments.yaml` is the source dataset.
 
 Future destination folders may contain outlines, notes, drafts, and
 published material derived from the moments.
